@@ -1,0 +1,5 @@
+models/*.onnx
+!models/7_model.pth
+__pycache__/
+*.py[cod]
+.pytest_cache/

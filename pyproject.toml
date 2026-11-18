@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "controlnet_aux_onnx"
+version = "0.1.0"
+description = "Fast, self-contained ONNX Runtime wrappers and conversion scripts for controlnet_aux preprocessors."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Buuta.Buta.Butaata" }
+]
+keywords = ["controlnet", "onnx", "onnxruntime", "computer-vision", "edge-detection", "depth-estimation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# 推論のみを実行するための最小限の依存パッケージ（PyTorch不要）
+dependencies = [
+    "numpy>=1.21.0",
+    "onnxruntime>=1.22.0",
+    "huggingface_hub>=0.20.0",
+]
+
+# エクスポートスクリプトやpytestを実行する開発者向けの追加依存パッケージ
+[project.optional-dependencies]
+dev = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "transformers>=4.35.0",
+    "controlnet_aux>=0.0.7",
+    "pytest>=7.0.0",
+    "Pillow>=9.0.0",
+    "opencv-python>=4.5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
