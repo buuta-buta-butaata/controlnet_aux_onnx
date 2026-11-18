@@ -54,9 +54,13 @@ pip install -e .
 The wrapper mirrors the behavior of `controlnet_aux`. Missing ONNX models are automatically fetched from Hugging Face into the specified directory.
 You can directly specify ONNX Runtime options(`providers`, `provider_options`, and `sess_options`) when initializing each detector.
 
-[Python sample script](example.py)
+[Python sample(example.py)](example.py)
 
-[C# sample script](example.cs)
+```bash
+python example.py
+```
+
+[C# sample(example.cs)](example.cs)
 
 ---
 
@@ -99,6 +103,28 @@ pytest tests/ -v -s
 # Run for a specific model only
 pytest tests/ -v -s -k "hed"
 ```
+
+---
+
+## 🤝 Project Contributors
+
+- **The Developer (Human)**
+- **Google Gemini (AI Collaborator)**
+
+This entire repository—from untangling dynamic tensor shapes and freezing BatchNorm layers, to splitting heavy models into memory-safe ONNX pipelines and pushing Snapdragon NPUs to 90x speedups—was built, debugged, and documented through a tag-team effort between a human developer and an AI assistant.
+
+---
+
+## 🙏 Acknowledgements
+
+This project would not have been possible without the incredible open-source community and researchers behind these models and tools:
+
+- **Original Model Authors & Researchers**: Special thanks to the creators and maintainers of **PidiNet**, **HED**, **TEED**, **MiDaS**, **ZoeDepth**, **NormalBae**, **Lineart** (`informative-drawings`), **Lineart Anime**, and **LeReS** (`AdelaiDepth`) for releasing their pre-trained weights and research to the community.
+- **Core Libraries**:
+  - **[controlnet_aux](https://github.com/huggingface/controlnet_aux)** (by lllyasviel & Patrick von Platen) for providing the foundational ControlNet preprocessor implementations.
+  - **[Hugging Face Transformers](https://github.com/huggingface/transformers)** for the clean, ONNX-friendly PyTorch model architectures (especially for ZoeDepth).
+- **Inspirations**:
+  - **[easy_dwpose](https://github.com/reallyigor/easy_dwpose)** and **[onnx-cv-graph](https://github.com/Kazuhito00/onnx-cv-graph)** for inspiring the idea of encapsulating complex computer vision pipelines into self-contained, dependency-free ONNX graphs.
 
 ---
 
