@@ -56,7 +56,8 @@ The wrapper mirrors the behavior of `controlnet_aux`. Missing ONNX models are au
 You can directly specify ONNX Runtime options(`providers`, `provider_options`, and `sess_options`) when initializing each detector.
 
 [Python sample script](example.py)
-<!-- [C# sample script](example.cs) -->
+
+[C# sample script](example.cs)
 
 ---
 
