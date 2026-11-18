@@ -1,6 +1,6 @@
 # controlnet_aux_onnx
 
-Fast, self-contained ONNX runtime wrappers and conversion scripts for `controlnet_aux` preprocessors.
+Fast, self-contained ONNX runtime wrappers and conversion scripts for [`controlnet_aux`](https://github.com/huggingface/controlnet_aux) preprocessors.
 
 All ONNX models share **unified Input/Output specifications** and bake complex pre-processing and post-processing (normalization, padding, flip-augmentation, scribble, safe_step, etc.) directly into the ONNX graph.
 
@@ -11,7 +11,6 @@ All ONNX models share **unified Input/Output specifications** and bake complex p
 ## 🌟 Highlights
 
 - **Zero-Config Inference**: The Python wrapper (`src/controlnet_aux_onnx`) automatically downloads required ONNX files from Hugging Face Hub on first run and caches them locally.
-- **Unified I/O**: Feed raw `uint8` BGR images (OpenCV format) directly and get `float32` RGB `[0.0 - 1.0]` tensors ready for ControlNet.
 - **Fast**: Up to **13x faster on CPU** (tested on Snapdragon X Elite) compared to the original PyTorch implementation.
 - **Cross-Platform Ready**: Easily portable to C#, C++, Rust, or Web environments without Python dependencies.
 
