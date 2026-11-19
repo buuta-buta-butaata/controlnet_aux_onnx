@@ -1,68 +1,60 @@
 # controlnet_aux_onnx
 
-Fast, self-contained ONNX runtime wrappers and conversion scripts for [`controlnet_aux`](https://github.com/huggingface/controlnet_aux) preprocessors.
-
-All ONNX models share **unified Input/Output specifications** and bake complex pre-processing and post-processing (normalization, padding, flip-augmentation, scribble, safe_step, etc.) directly into the ONNX graph.
+ONNX Runtime wrappers and conversion scripts that run `controlnet_aux` preprocessors directly inside ONNX graphs.
 
 - 🤗 **Pre-converted ONNX Models**: [Hugging Face Hub (`Buuta/controlnet_aux_onnx`)](https://huggingface.co/Buuta/controlnet_aux_onnx)
 
----
+## 🌟 Features
 
-## 🌟 Highlights
+Compared to the original `controlnet_aux`:
 
-- **Zero-Config Inference**: The Python wrapper (`src/controlnet_aux_onnx`) automatically downloads required ONNX files from Hugging Face Hub on first run and caches them locally.
-- **Fast**: Up to **13x faster on CPU** (tested on Snapdragon X Elite) compared to the original PyTorch implementation.
-- **Cross-Platform Ready**: Easily portable to C#, C++, Rust, or Web environments without Python dependencies.
+- **Fast**: **2x to 13x faster** (see the [Hugging Face Model Card](https://huggingface.co/Buuta/controlnet_aux_onnx#%E2%9A%A1-benchmark-results) for details).
+- **Lightweight**: No runtime dependencies on `PyTorch` or `opencv-python`.
+- **High Accuracy**: Achieves **>95% exact pixel match** with 100% of differences within 1 quantization step (see [Test Design](#-test-design) below).
+- **Cross-Platform Ready**: Easily portable to other languages like C# (see [`example.cs`](example.cs)).
 
----
+## 🚀 Quick Start
 
-## 📁 Repository Structure
-
-```text
-controlnet_aux_onnx/
-├── src/
-│   └── controlnet_aux_onnx/   # Python wrapper matching controlnet_aux API (auto-downloads ONNX)
-├── model_converters/          # PyTorch-to-ONNX export scripts for each model & filter
-├── models/                    # Directory where ONNX models are exported
-├── tests/                     # pytest validation & benchmark suites
-├── pyproject.toml
-├── LICENSE
-└── README.md
-```
-
----
-
-## 🚀 Quick Start (Python)
-
-### 1. Installation
+1. Installation
 
 ```bash
 git clone https://github.com/buuta-buta-butaata/controlnet_aux_onnx
 cd controlnet_aux_onnx
-
-# Install core runtime dependencies
 pip install onnxruntime numpy huggingface_hub
-
-# Install controlnet_aux_onnx
 pip install -e .
 ```
 
-*(Note: If you want to run the conversion scripts in `model_converters/` or `tests/`, please also install `torch`, `transformers`, `controlnet_aux`, `opencv-python`, and `pytest`.)*
+*(Note: If you want to run the conversion scripts in `model_converters/` or `tests/`, please also install `torch`, `transformers`, `controlnet_aux`, and `pytest`.)*
 
-### 2. Usage Example
+### 2. Usage
 
-The wrapper mirrors the behavior of `controlnet_aux`. Missing ONNX models are automatically fetched from Hugging Face into the specified directory.
-You can directly specify ONNX Runtime options(`providers`, `provider_options`, and `sess_options`) when initializing each detector.
+Pass model directory path and ONNX Runtime parameters (such as `model_dir` and `providers`) directly upon initialization. The other API mirrors `controlnet_aux`. Files are automatically downloaded from Hugging Face on the first run or can be retrieved manually from the [Hugging Face Hub (`Buuta/controlnet_aux_onnx`)](https://huggingface.co/Buuta/controlnet_aux_onnx).
 
-[Python sample(example.py)](example.py)
+```python
+from controlnet_aux_onnx import PidiNetDetector
+from PIL import Image
+
+img = Image.open("./tests/test_images/ninja512.png").convert("RGB")
+
+pidi = PidiNetDetector(
+    model_dir="./models",
+    providers=["CPUExecutionProvider"],
+    provider_options=None,
+    sess_options=None,
+)
+pidi_pil_img = pidi(img)
+pidi_pil_img.save("pidi_output.png")
+```
+
+[Another Python example(example.py)](example.py)
 
 ```bash
 python example.py
 ```
 
-[C# sample(example.cs)](example.cs)
+The downloaded ONNX can also be used in C#.
 
----
+[C# example(example.cs)](example.cs)
 
 ## 🛠️ Exporting Models Locally (`model_converters/`)
 
@@ -74,16 +66,26 @@ python model_converters/export_hed.py
 python model_converters/export_filter_scribble.py
 ```
 
-### ⚠️ Note on LeReS (`export_leres.py`)
-Due to the original **Adobe Research License** (which prohibits redistribution of the research materials/weights), `leres.onnx` is **not hosted on Hugging Face**. 
-To use LeReS, please generate the ONNX file locally by running:
+## ⚠️ Notes & Limitations
+
+- **Supported Models**: Currently supports only models that directly output images end-to-end (excluding models with coordinate outputs or complex multi-stage pipelines like `MLSD` and `Segment Anything`).
+- **LeReS Weights**: Subject to license restrictions; please convert locally via `python model_converters/export_leres.py`.
+
+## 🧪 Test Design
+
+ONNX outputs are evaluated against the original `controlnet_aux` on 32 COCO2017 images (downloaded via `python tests/download_test_images.py` into `./tests/test_images/`) to ensure high accuracy, with exact match rates exceeding 95% and all remaining variations within a single quantization step.
+
 ```bash
-python model_converters/export_leres.py
+# Run accuracy tests and benchmarks
+pytest tests/ -v -s
+
+# Run for a specific model only
+pytest tests/ -v -s -k "hed"
 ```
 
----
+<details>
 
-## 🧪 Test Design & Validation Criteria
+<summary>Validation Criteria</summary>
 
 Because post-processing filters can generate binary (`[0, 255]`) or ternary (`[0, 127, 255]`) images, the test validation criteria are designed as follows to account for quantization boundary shifts:
 
@@ -92,17 +94,12 @@ Because post-processing filters can generate binary (`[0, 255]`) or ternary (`[0
 
 *(Note: For base models without post-processing filters, over **97%** of pixels match identically, achieving a **100%** match rate within a `1/255` tolerance.)*
 
-## 🧪 Running Tests & Benchmarks (`tests/`)
+</details>
 
-All ONNX models are verified against the original `controlnet_aux` outputs using `pytest`.
+## 📜 License
 
-```bash
-# Run accuracy tests and speed benchmarks
-pytest tests/ -v -s
-
-# Run for a specific model only
-pytest tests/ -v -s -k "hed"
-```
+- **Code & Conversion Scripts**: Apache License 2.0
+- **Model Weights**: Inherits original pre-trained licenses [(Apache 2.0, MIT, or Adobe Research License)](https://huggingface.co/Buuta/controlnet_aux_onnx#%F0%9F%93%A6-model-inventory--licenses).
 
 ---
 
@@ -112,8 +109,6 @@ pytest tests/ -v -s -k "hed"
 - **Google Gemini (AI Collaborator)**
 
 This entire repository—from untangling dynamic tensor shapes and freezing BatchNorm layers, to splitting heavy models into memory-safe ONNX pipelines and pushing Snapdragon NPUs to 90x speedups—was built, debugged, and documented through a tag-team effort between a human developer and an AI assistant.
-
----
 
 ## 🙏 Acknowledgements
 
@@ -127,10 +122,3 @@ This project would not have been possible without the incredible open-source com
   - **[easy_dwpose](https://github.com/reallyigor/easy_dwpose)** and **[onnx-cv-graph](https://github.com/Kazuhito00/onnx-cv-graph)** for inspiring the idea of encapsulating complex computer vision pipelines into self-contained, dependency-free ONNX graphs.
 
 ---
-
-## 📜 License
-
-- **Code & Conversion Scripts**: Licensed under the **Apache License 2.0**.
-- **Model Weights**: Each exported ONNX model inherits the license of its original pre-trained weights (Apache 2.0, MIT, or Adobe Research License). Please refer to the [Hugging Face Model Card](https://huggingface.co/Buuta/controlnet_aux_onnx) for the full license matrix.
-
-
