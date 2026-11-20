@@ -38,10 +38,8 @@ def export():
                 dummy_input=dummy_input,
                 input_names=input_names,
                 output_names=output_names,
-                # optimize=False,
-                # slim=False,
-                output_dir=r"C:\Applications\AI\github\controlnet_aux_onnx\models")
-    # export_onnx(name, wrapper, shape, output_dir=r"C:\Applications\AI\github\controlnet_aux_onnx\models", dynamic_shapes=None)
+                optimize=False,
+                slim=False)
 
 
 # for transformers Version: 5.22.2
